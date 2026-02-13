@@ -7,70 +7,43 @@
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 
-**A modern, real-time bookmark manager built for speed and simplicity.**
-
-[🚀 **Live Demo**](https://smart-bookmark-app.vercel.app) · [🐞 **Report Bug**](https://github.com/Gnaneswar43/smart-bookmark-app/issues)
+**A modern, real-time bookmark manager built for speed, security, and simplicity.**
 
 </div>
+
+---
+
+## 🚀 Live URL
+**[https://smart-bookmark-app.vercel.app](https://smart-bookmark-app.vercel.app)**
+
+## � GitHub Repo
+**[https://github.com/Gnaneswar43/smart-bookmark-app](https://github.com/Gnaneswar43/smart-bookmark-app)**
 
 ---
 
 ## ✨ Features
 
 - **🔐 Google Authentication**: Secure and seamless login via Supabase Auth.
-- **🛡️ Row Level Security (RLS)**: Private data isolation—users only see their own bookmarks.
-- **⚡ Real-time Sync**: Instant updates across all devices using Supabase Realtime.
-- **🎨 Modern UI**: Clean, responsive interface with dark mode and glassmorphism effects.
-- **📱 Fully Responsive**: Works perfectly on mobile, tablet, and desktop.
+- **🛡️ Row Level Security (RLS)**: Strict data isolation—users can only access their own data.
+- **⚡ Real-time Sync**: Instant updates across devices using Supabase Realtime subscriptions.
+- **🎨 Modern UI**: Fully responsive, dark-mode design with glassmorphism effects using Tailwind CSS.
+- **📱 Responsive**: Optimized for desktop, tablet, and mobile views.
 
 ## 🛠 Tech Stack
 
-- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Frontend**: [Next.js 14](https://nextjs.org/) (App Router), React, TypeScript
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Backend**: [Supabase](https://supabase.com/) (PostgreSQL + Auth + Realtime)
+- **Backend**: [Supabase](https://supabase.com/) (PostgreSQL Database, Auth, Realtime)
 - **Deployment**: [Vercel](https://vercel.com/)
 
 ---
 
-## 🚀 Getting Started
+## 🏗 Architecture & Database
 
-### Prerequisites
+The application is built on a serverless architecture.
 
-- Node.js 18+
-- A Supabase account
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Gnaneswar43/smart-bookmark-app.git
-   cd smart-bookmark-app
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Environment Setup**
-   Create a `.env.local` file in the root directory:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
-
-4. **Run Locally**
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000).
-
----
-
-## 🗄 Database Schema
-
-The app uses a single `bookmarks` table in Supabase.
+### Database Schema
+A single `bookmarks` table handles the data.
 
 ```sql
 create table public.bookmarks (
@@ -82,37 +55,48 @@ create table public.bookmarks (
 );
 ```
 
-### 🔒 Security Policies (RLS)
-
-We use PostgreSQL Row Level Security to ensure data privacy:
-
-| Policy | Description |
-| :--- | :--- |
-| **SELECT** | Users can only view their own bookmarks. |
-| **INSERT** | Users can only insert bookmarks for themselves. |
-| **DELETE** | Users can only delete their own bookmarks. |
+### Security (RLS)
+Data privacy is enforced at the database level using PostgreSQL Row Level Security policies:
+- **SELECT**: `auth.uid() = user_id` (Users see only their own bookmarks)
+- **INSERT**: `auth.uid() = user_id` (Users create bookmarks for themselves)
+- **DELETE**: `auth.uid() = user_id` (Users delete only their own bookmarks)
 
 ---
 
-## 📸 Screenshots
+## � Challenges Faced & Solutions
 
-| Landing Page | Dashboard |
-| :---: | :---: |
-| *(Add screenshot here)* | *(Add screenshot here)* |
+During development, I encountered several challenges that required debugging and architectural decisions.
+
+### 1. Google OAuth Redirect Issue
+- **Problem**: After users authenticated with Google on authentication, the session wasn't persisting correctly, and they were often redirected back to the login screen without a valid session state.
+- **Solution**: I updated the `signInWithOAuth` configuration to explicitly include a `redirectTo` URL (`window.location.origin`). I also ensured that the Vercel deployment URL was correctly added to the **Redirect URLs** allowlist in the Supabase Dashboard.
+
+### 2. RLS Policies Returning Empty Data
+- **Problem**: Even after successfully inserting data, queries to fetch bookmarks returned an empty array.
+- **Solution**: This was due to RLS being enabled but no `SELECT` policy being defined. I wrote a PostgreSQL policy to specifically allow users to select rows where the `user_id` matches their authenticated ID (`auth.uid()`).
+
+### 3. Realtime Updates Not Triggering
+- **Problem**: When a bookmark was added, it didn't appear in the list immediately without a manual page refresh.
+- **Solution**: I implemented a **Supabase Realtime subscription** in a `useEffect` hook. The app now listens for `postgres_changes` events (INSERT, DELETE) on the `bookmarks` table and triggers a data re-fetch instantly when an event is received.
+
+### 4. Vercel Build Failure (JSON Syntax)
+- **Problem**: The deployment to Vercel failed with a generic parser error during the build step.
+- **Solution**: Tracing the logs revealed a syntax error in `package.json` (a missing opening bracket). I verified the file structure locally using JSON validation, fixed the syntax error, and the build passed successfully.
+
+---
+
+## 🚀 Future Improvements
+
+- **🔍 Search & Filter**: Add a search bar to filter bookmarks by title or URL.
+- **🏷️ Tags System**: Allow users to categorize bookmarks with tags.
+- **🖼️ OG Preview**: Automatically fetch and display Open Graph images for saved links.
+- **✏️ Edit Functionality**: Enable users to update the title or URL of existing bookmarks.
 
 ---
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
 
 ## 📝 License
 
