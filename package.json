@@ -1,6 +1,6 @@
-{
   "name": "smart-bookmark-app",
   "version": "0.1.0",
+  "author": "Gnaneswar chitikela",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.95.3",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"

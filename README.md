@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Smart Bookmark App
 
-## Getting Started
+A modern, full-stack web application aimed at organizing your web resources efficiently. Built with the latest web technologies, this app features secure authentication, real-time data synchronization, and a clean, responsive user interface.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Google OAuth Authentication**: Secure and seamless login experience using Google credentials via Supabase Auth.
+- **Personalized Bookmarking**: Users can add and manage their own private collection of bookmarks.
+- **Row Level Security (RLS)**: Data privacy is enforced at the database level. Users can strictly access only their own data.
+- **Real-time Updates**: Changes (additions/deletions) are reflected instantly across all connected devices using Supabase Realtime.
+- **Responsive Design**: fully responsive interface built with Tailwind CSS.
+
+## 🛠 Tech Stack
+
+- **Frontend**: [Next.js 15](https://nextjs.org/) (App Router), [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Backend & Database**: [Supabase](https://supabase.com/) (PostgreSQL)
+- **Authentication**: Supabase Auth (Google OAuth)
+- **State Management**: React Hooks + Supabase Realtime
+
+## 📦 Setup & Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/smart-bookmark-app.git
+   cd smart-bookmark-app
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Configuration**
+   Create a `.env.local` file in the root directory and add your Supabase credentials:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **Run Locally**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+## 🗄 Database Schema & Security
+
+The application uses a single `bookmarks` table in Supabase.
+
+### Schema
+```sql
+create table public.bookmarks (
+  id uuid default gen_random_uuid() primary key,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  title text not null,
+  url text not null,
+  user_id uuid references auth.users not null default auth.uid()
+);
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Security Policies (RLS)
+Row Level Security is enabled to ensure data isolation:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Enable RLS**:
+   ```sql
+   alter table bookmarks enable row level security;
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Policies**:
+   - **Select**: Users can view their own bookmarks.
+   - **Insert**: Users can add bookmarks (automatically assigned to their `user_id`).
+   - **Delete**: Users can delete their own bookmarks.
 
-## Learn More
+## 🚀 Deployment
 
-To learn more about Next.js, take a look at the following resources:
+This project is optimized for deployment on [Vercel](https://vercel.com/).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push your code to GitHub.
+2. Import the project into Vercel.
+3. Add the `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to the Vercel Project Settings > Environment Variables.
+4. Deploy!
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🤝 Contributing
 
-## Deploy on Vercel
+Contributions, issues, and feature requests are welcome!
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📝 License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is open source and available under the [MIT License](LICENSE).
